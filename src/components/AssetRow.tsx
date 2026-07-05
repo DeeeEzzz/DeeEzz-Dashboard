@@ -5,6 +5,38 @@ import type { AssetDef } from '../config/assets';
 import { formatPrice } from '../config/assets';
 import type { MarketQuote } from '../hooks/useMarketData';
 
+// ── Custom metal bar icons ────────────────────────────────────────────────────
+
+function GoldBarsIcon() {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
+      <rect x="2" y="21" width="28" height="9" rx="2" fill="#92400E"/>
+      <rect x="5" y="23.5" width="11" height="1.5" rx="0.75" fill="#FBBF24" opacity="0.45"/>
+      <rect x="2" y="12" width="28" height="8.5" rx="2" fill="#B45309"/>
+      <rect x="5" y="14.5" width="11" height="1.5" rx="0.75" fill="#FCD34D" opacity="0.5"/>
+      <rect x="2" y="3" width="28" height="8.5" rx="2" fill="#D97706"/>
+      <rect x="5" y="5.5" width="13" height="1.8" rx="0.9" fill="#FDE68A" opacity="0.75"/>
+      <rect x="5" y="8.5" width="9" height="1.2" rx="0.6" fill="#FDE68A" opacity="0.4"/>
+    </svg>
+  );
+}
+
+function SilverBarsIcon() {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-8 h-8">
+      <rect x="2" y="21" width="28" height="9" rx="2" fill="#374151"/>
+      <rect x="5" y="23.5" width="11" height="1.5" rx="0.75" fill="#9CA3AF" opacity="0.45"/>
+      <rect x="2" y="12" width="28" height="8.5" rx="2" fill="#4B5563"/>
+      <rect x="5" y="14.5" width="11" height="1.5" rx="0.75" fill="#D1D5DB" opacity="0.5"/>
+      <rect x="2" y="3" width="28" height="8.5" rx="2" fill="#6B7280"/>
+      <rect x="5" y="5.5" width="13" height="1.8" rx="0.9" fill="#F3F4F6" opacity="0.75"/>
+      <rect x="5" y="8.5" width="9" height="1.2" rx="0.6" fill="#F9FAFB" opacity="0.4"/>
+    </svg>
+  );
+}
+
+// ── Asset icon (logo, custom SVG, or badge fallback) ──────────────────────────
+
 interface AssetRowProps {
   asset: AssetDef;
   quote?: MarketQuote;
@@ -12,6 +44,9 @@ interface AssetRowProps {
 
 function AssetIcon({ asset }: { asset: AssetDef }) {
   const [imgFailed, setImgFailed] = useState(false);
+
+  if (asset.id === 'GOLD')   return <GoldBarsIcon />;
+  if (asset.id === 'SILVER') return <SilverBarsIcon />;
 
   if (asset.logo && !imgFailed) {
     return (

@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, RefreshCw, Bell, Search } from 'lucide-react';
+import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import AssetSection from './components/AssetSection';
 import NewsFeed from './components/NewsFeed';
 import { useMarketData } from './hooks/useMarketData';
@@ -27,45 +27,38 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen bg-gray-950 overflow-hidden">
 
-      {/* ── Full-width header ─────────────────────────────────────────────── */}
-      <header className="flex items-center justify-between px-5 h-14 bg-gray-950 border-b border-gray-800 shrink-0">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-            <TrendingUp size={13} className="text-white" />
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      <header className="flex items-center px-6 h-20 bg-gray-950 border-b border-gray-800 shrink-0">
+        <div className="flex items-center gap-4">
+          {/* Logo — twice original size */}
+          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
+            <TrendingUp size={26} className="text-white" />
           </div>
           <div>
-            <h1 className="text-white font-bold text-base leading-tight">DeeEzz Market Dashboard</h1>
-            <p className="text-gray-600 text-xs hidden sm:block">{today}</p>
+            {/* Title — twice original size */}
+            <h1 className="text-white font-bold text-3xl leading-tight tracking-tight">
+              DeeEzz Market Dashboard
+            </h1>
+            <p className="text-gray-500 text-xs mt-0.5">
+              {today}
+              {lastUpdate && (
+                <span className="ml-2 inline-flex items-center gap-1">
+                  <RefreshCw size={9} className={loading ? 'animate-spin text-indigo-400' : 'text-gray-600'} />
+                  <span className={loading ? 'text-indigo-400' : 'text-gray-600'}>
+                    {lastUpdate.toLocaleTimeString()}
+                  </span>
+                </span>
+              )}
+            </p>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {lastUpdate && (
-            <span className="hidden sm:flex items-center gap-1.5 text-gray-600 text-xs">
-              <RefreshCw size={10} className={loading ? 'animate-spin text-indigo-400' : ''} />
-              {lastUpdate.toLocaleTimeString()}
-            </span>
-          )}
-          <div className="hidden md:flex items-center gap-2 bg-gray-900 border border-gray-800 rounded-xl px-3 py-1.5 text-xs text-gray-500 w-44 hover:border-indigo-500/40 transition-colors cursor-pointer">
-            <Search size={12} />
-            <span>Search…</span>
-          </div>
-          <button className="p-1.5 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white transition-all">
-            <Bell size={15} />
-          </button>
         </div>
       </header>
 
-      {/* ── Two-column body ───────────────────────────────────────────────── */}
-      {/*
-          Mobile (< lg):  single column, prices on top, news below
-          Desktop (lg+):  left = news (fixed width), right = prices (flex-1)
-          Each column scrolls independently on desktop.
-      */}
+      {/* ── Two-column body: 1/3 news · 2/3 prices ─────────────────────────── */}
       <div className="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row min-h-0">
 
-        {/* ── Right: Prices ─────────────────────────────────────────────── */}
-        <div className="order-1 lg:order-2 flex-1 lg:overflow-y-auto min-h-0">
+        {/* ── Right (2/3): prices — order-1 so it appears first on mobile ── */}
+        <div className="order-1 lg:order-2 lg:w-2/3 lg:overflow-y-auto">
           <div className="p-4 lg:p-5 space-y-3">
 
             {/* Summary boxes */}
@@ -101,12 +94,8 @@ export default function App() {
           </div>
         </div>
 
-        {/* ── Left: News ────────────────────────────────────────────────── */}
-        <aside className="order-2 lg:order-1 lg:w-[340px] lg:shrink-0 lg:border-r border-t lg:border-t-0 border-gray-800 lg:overflow-y-auto">
-          {/* Mobile news label */}
-          <div className="lg:hidden px-4 pt-4 pb-1">
-            <h3 className="text-white font-semibold text-sm">Market News</h3>
-          </div>
+        {/* ── Left (1/3): news — order-2 so it appears below prices on mobile */}
+        <aside className="order-2 lg:order-1 lg:w-1/3 lg:shrink-0 lg:border-r border-t lg:border-t-0 border-gray-800 lg:overflow-y-auto">
           <NewsFeed articles={articles} loading={newsLoading} />
         </aside>
 
