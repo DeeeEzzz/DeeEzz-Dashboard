@@ -1,4 +1,4 @@
-import { DollarSign, TrendingUp, BarChart2, Bell, Search } from 'lucide-react';
+import { DollarSign, TrendingUp, BarChart2, Briefcase, Bell, Search } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import StatCard from './components/StatCard';
 import PerformanceChart from './components/PerformanceChart';
@@ -6,9 +6,11 @@ import AllocationChart from './components/AllocationChart';
 import HoldingsTable from './components/HoldingsTable';
 import Watchlist from './components/Watchlist';
 import TransactionFeed from './components/TransactionFeed';
+import NewsFeed from './components/NewsFeed';
+import { useQuotes } from './hooks/useQuotes';
+import { useNews } from './hooks/useNews';
 import {
   portfolioHoldings,
-  watchlist,
   performanceData,
   recentTransactions,
   totalPortfolioValue,
@@ -16,9 +18,19 @@ import {
   totalGainPct,
 } from './data/mockData';
 
-const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+const today = new Date().toLocaleDateString('en-US', {
+  weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
+});
 
 export default function App() {
+  const { quotes, loading: quotesLoading } = useQuotes();
+  const { articles, loading: newsLoading } = useNews();
+
+  // Compute today's change from live SPY quote if available
+  const spy = quotes.get('SPY');
+  const todayChange = spy ? `${spy.changePct >= 0 ? '+' : ''}${spy.changePct.toFixed(2)}%` : '+1.14%';
+  const todayPositive = spy ? spy.changePct >= 0 : true;
+
   return (
     <div className="flex h-screen bg-gray-950 overflow-hidden">
       <Sidebar />
@@ -65,10 +77,10 @@ export default function App() {
               accent="from-emerald-500 to-teal-600"
             />
             <StatCard
-              title="Today's Change"
-              value="+$342.80"
-              subValue="+1.14% today"
-              positive
+              title="Market Today"
+              value={spy ? `$${spy.price.toFixed(2)}` : 'SPY'}
+              subValue={`${todayChange} · S&P 500`}
+              positive={todayPositive}
               icon={<BarChart2 size={18} className="text-white" />}
               accent="from-blue-500 to-cyan-600"
             />
@@ -77,7 +89,7 @@ export default function App() {
               value={`${portfolioHoldings.length}`}
               subValue="Active holdings"
               positive
-              icon={<Bell size={18} className="text-white" />}
+              icon={<Briefcase size={18} className="text-white" />}
               accent="from-violet-500 to-fuchsia-600"
             />
           </div>
@@ -99,7 +111,11 @@ export default function App() {
           </div>
 
           {/* Watchlist */}
-          <Watchlist assets={watchlist} />
+          <Watchlist quotes={quotes} loading={quotesLoading} />
+
+          {/* News feed */}
+          <NewsFeed articles={articles} loading={newsLoading} />
+
         </main>
       </div>
     </div>
