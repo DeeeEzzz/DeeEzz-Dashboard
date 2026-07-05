@@ -17,12 +17,12 @@ function timeAgo(dateStr: string) {
 
 function SkeletonCard() {
   return (
-    <div className="flex gap-3 p-3 animate-pulse">
-      <div className="w-16 h-16 rounded-lg bg-gray-800 shrink-0" />
-      <div className="flex-1 space-y-2">
+    <div className="flex gap-3 px-4 py-3 animate-pulse">
+      <div className="w-14 h-14 rounded-lg bg-gray-800 shrink-0" />
+      <div className="flex-1 space-y-2 pt-1">
         <div className="h-3 bg-gray-800 rounded w-full" />
         <div className="h-3 bg-gray-800 rounded w-4/5" />
-        <div className="h-2 bg-gray-800 rounded w-1/3" />
+        <div className="h-2 bg-gray-800 rounded w-1/3 mt-1" />
       </div>
     </div>
   );
@@ -30,50 +30,56 @@ function SkeletonCard() {
 
 export default function NewsFeed({ articles, loading }: NewsFeedProps) {
   return (
-    <div className="rounded-2xl bg-gray-900 border border-gray-800 p-6">
-      <div className="flex items-center justify-between mb-5">
-        <h3 className="text-white font-semibold text-lg">Market News</h3>
-        <span className="text-xs text-gray-500 flex items-center gap-1">
-          <Clock size={11} /> Live
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 ml-1 animate-pulse" />
+    <div className="flex flex-col h-full">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 bg-gray-950 border-b border-gray-800 shrink-0">
+        <h3 className="text-white font-semibold text-sm">Market News</h3>
+        <span className="text-xs text-gray-500 flex items-center gap-1.5">
+          <Clock size={11} />
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          Live
         </span>
       </div>
 
-      <div className="space-y-1 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
+      {/* Articles */}
+      <div className="divide-y divide-gray-800/60">
         {loading
-          ? Array.from({ length: 5 }).map((_, i) => <SkeletonCard key={i} />)
-          : articles.slice(0, 15).map((article, i) => (
-              <a
-                key={i}
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex gap-3 p-3 rounded-xl hover:bg-gray-800/60 transition-colors group cursor-pointer"
-              >
-                {article.urlToImage ? (
-                  <img
-                    src={article.urlToImage}
-                    alt=""
-                    className="w-16 h-16 rounded-lg object-cover shrink-0 bg-gray-800"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                  />
-                ) : (
-                  <div className="w-16 h-16 rounded-lg bg-gray-800 shrink-0 flex items-center justify-center">
-                    <ExternalLink size={16} className="text-gray-600" />
+          ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
+          : articles
+              .filter(a => a.title && a.title !== '[Removed]')
+              .slice(0, 30)
+              .map((article, i) => (
+                <a
+                  key={i}
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex gap-3 px-4 py-3 hover:bg-gray-800/50 transition-colors group"
+                >
+                  {article.urlToImage ? (
+                    <img
+                      src={article.urlToImage}
+                      alt=""
+                      className="w-14 h-14 rounded-lg object-cover shrink-0 bg-gray-800"
+                      onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-lg bg-gray-800 shrink-0 flex items-center justify-center">
+                      <ExternalLink size={14} className="text-gray-600" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white text-xs font-medium leading-snug line-clamp-3 group-hover:text-indigo-300 transition-colors">
+                      {article.title}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <span className="text-indigo-400 text-xs font-medium truncate">{article.source.name}</span>
+                      <span className="text-gray-600 text-xs">·</span>
+                      <span className="text-gray-600 text-xs">{timeAgo(article.publishedAt)}</span>
+                    </div>
                   </div>
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium leading-snug line-clamp-2 group-hover:text-indigo-300 transition-colors">
-                    {article.title}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <span className="text-indigo-400 text-xs font-medium truncate">{article.source.name}</span>
-                    <span className="text-gray-600 text-xs">·</span>
-                    <span className="text-gray-500 text-xs">{timeAgo(article.publishedAt)}</span>
-                  </div>
-                </div>
-              </a>
-            ))}
+                </a>
+              ))}
       </div>
     </div>
   );
