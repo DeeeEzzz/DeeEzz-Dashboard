@@ -1,121 +1,109 @@
-import { DollarSign, TrendingUp, BarChart2, Briefcase, Bell, Search } from 'lucide-react';
+import { RefreshCw, Bell, Search, TrendingUp, TrendingDown } from 'lucide-react';
 import Sidebar from './components/Sidebar';
-import StatCard from './components/StatCard';
-import PerformanceChart from './components/PerformanceChart';
-import AllocationChart from './components/AllocationChart';
-import HoldingsTable from './components/HoldingsTable';
-import Watchlist from './components/Watchlist';
-import TransactionFeed from './components/TransactionFeed';
+import AssetSection from './components/AssetSection';
 import NewsFeed from './components/NewsFeed';
-import { useQuotes } from './hooks/useQuotes';
+import { useMarketData } from './hooks/useMarketData';
 import { useNews } from './hooks/useNews';
-import {
-  portfolioHoldings,
-  performanceData,
-  recentTransactions,
-  totalPortfolioValue,
-  totalPortfolioGain,
-  totalGainPct,
-} from './data/mockData';
+import { ASSETS, ASSET_CLASS_ORDER, formatPrice } from './config/assets';
 
 const today = new Date().toLocaleDateString('en-US', {
   weekday: 'long', month: 'long', day: 'numeric', year: 'numeric',
 });
 
+// ── Top summary metrics ────────────────────────────────────────────────────
+const SUMMARY_KEYS = [
+  { id: 'BTC',   label: 'Bitcoin',     format: 'usd-large' as const },
+  { id: 'GOLD',  label: 'Gold',        format: 'usd-large' as const, suffix: '/oz' },
+  { id: 'SP500', label: 'S&P 500',     format: 'index'     as const },
+  { id: 'DXY',   label: 'Dollar Index',format: 'forex-2dp' as const },
+];
+
 export default function App() {
-  const { quotes, loading: quotesLoading } = useQuotes();
+  const { data, loading, lastUpdate } = useMarketData();
   const { articles, loading: newsLoading } = useNews();
 
-  // Compute today's change from live SPY quote if available
-  const spy = quotes.get('SPY');
-  const todayChange = spy ? `${spy.changePct >= 0 ? '+' : ''}${spy.changePct.toFixed(2)}%` : '+1.14%';
-  const todayPositive = spy ? spy.changePct >= 0 : true;
+  // Group assets by class
+  const grouped = Object.fromEntries(
+    ASSET_CLASS_ORDER.map(cls => [
+      cls,
+      ASSETS.filter(a => a.assetClass === cls),
+    ])
+  );
 
   return (
     <div className="flex h-screen bg-gray-950 overflow-hidden">
       <Sidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
+
         {/* Desktop header */}
         <header className="hidden lg:flex items-center justify-between px-6 h-16 bg-gray-950 border-b border-gray-800 shrink-0">
           <div>
-            <h1 className="text-white font-bold text-xl">Dashboard</h1>
+            <h1 className="text-white font-bold text-xl tracking-tight">DeeEzz Market Dashboard</h1>
             <p className="text-gray-500 text-xs">{today}</p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-sm text-gray-400 w-56 hover:border-indigo-500/50 transition-colors cursor-pointer">
-              <Search size={14} />
+            {lastUpdate && (
+              <span className="text-gray-600 text-xs flex items-center gap-1.5">
+                <RefreshCw size={11} className={loading ? 'animate-spin text-indigo-400' : 'text-gray-600'} />
+                Updated {lastUpdate.toLocaleTimeString()}
+              </span>
+            )}
+            <div className="flex items-center gap-2 bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-sm text-gray-500 w-52 hover:border-indigo-500/40 transition-colors cursor-pointer">
+              <Search size={13} />
               <span>Search assets…</span>
-              <kbd className="ml-auto text-xs bg-gray-800 text-gray-500 px-1.5 py-0.5 rounded">⌘K</kbd>
             </div>
-            <button className="relative p-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:border-indigo-500/50 transition-all">
-              <Bell size={17} />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-indigo-500 rounded-full" />
+            <button className="relative p-2 rounded-xl bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:border-indigo-500/40 transition-all">
+              <Bell size={16} />
             </button>
           </div>
         </header>
 
         {/* Scrollable content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-screen-2xl mx-auto p-4 lg:p-6 space-y-4">
 
-          {/* Stat cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              title="Total Value"
-              value={`$${(totalPortfolioValue / 1000).toFixed(2)}K`}
-              subValue={`+${totalGainPct.toFixed(2)}% all time`}
-              positive
-              icon={<DollarSign size={18} className="text-white" />}
-              accent="from-indigo-500 to-purple-600"
-            />
-            <StatCard
-              title="Total Gain"
-              value={`+$${(totalPortfolioGain / 1000).toFixed(2)}K`}
-              subValue="Unrealized P&L"
-              positive
-              icon={<TrendingUp size={18} className="text-white" />}
-              accent="from-emerald-500 to-teal-600"
-            />
-            <StatCard
-              title="Market Today"
-              value={spy ? `$${spy.price.toFixed(2)}` : 'SPY'}
-              subValue={`${todayChange} · S&P 500`}
-              positive={todayPositive}
-              icon={<BarChart2 size={18} className="text-white" />}
-              accent="from-blue-500 to-cyan-600"
-            />
-            <StatCard
-              title="Positions"
-              value={`${portfolioHoldings.length}`}
-              subValue="Active holdings"
-              positive
-              icon={<Briefcase size={18} className="text-white" />}
-              accent="from-violet-500 to-fuchsia-600"
-            />
-          </div>
-
-          {/* Performance chart + allocation */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-            <div className="xl:col-span-2">
-              <PerformanceChart data={performanceData} />
+            {/* Summary bar */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {SUMMARY_KEYS.map(({ id, label, format, suffix }) => {
+                const q = data[id];
+                const isPos = (q?.changePct ?? 0) >= 0;
+                return (
+                  <div key={id} className="rounded-xl bg-gray-900 border border-gray-800 px-4 py-3 hover:border-indigo-500/30 transition-colors">
+                    <p className="text-gray-500 text-xs font-medium mb-1">{label}</p>
+                    <p className="text-white font-bold text-lg font-mono leading-tight">
+                      {q ? formatPrice(q.price, format, suffix) : <span className="text-gray-700">—</span>}
+                    </p>
+                    {q && (
+                      <div className={`flex items-center gap-1 mt-1 text-xs font-semibold ${isPos ? 'text-emerald-400' : 'text-red-400'}`}>
+                        {isPos ? <TrendingUp size={11} /> : <TrendingDown size={11} />}
+                        {isPos ? '+' : ''}{q.changePct.toFixed(2)}%
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-            <AllocationChart holdings={portfolioHoldings} totalValue={totalPortfolioValue} />
+
+            {/* Asset sections */}
+            {ASSET_CLASS_ORDER.map(cls => (
+              <AssetSection
+                key={cls}
+                assetClass={cls}
+                assets={grouped[cls]}
+                data={data}
+              />
+            ))}
+
+            {/* News feed */}
+            <NewsFeed articles={articles} loading={newsLoading} />
+
+            {/* Footer */}
+            <p className="text-gray-700 text-xs text-center pb-4">
+              Market data: Finnhub · Yahoo Finance · Frankfurter.app · News: NewsAPI · Refreshes every 30s
+            </p>
+
           </div>
-
-          {/* Holdings + transactions */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-            <div className="xl:col-span-2">
-              <HoldingsTable holdings={portfolioHoldings} />
-            </div>
-            <TransactionFeed transactions={recentTransactions} />
-          </div>
-
-          {/* Watchlist */}
-          <Watchlist quotes={quotes} loading={quotesLoading} />
-
-          {/* News feed */}
-          <NewsFeed articles={articles} loading={newsLoading} />
-
         </main>
       </div>
     </div>
