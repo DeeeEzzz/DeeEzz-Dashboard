@@ -28,22 +28,22 @@ export default function App() {
     <div className="flex flex-col h-screen bg-gray-950 overflow-hidden">
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <header className="flex items-center px-6 h-20 bg-gray-950 border-b border-gray-800 shrink-0">
-        <div className="flex items-center gap-5">
-          {/* Logo wordmark */}
+      <header className="flex items-center px-8 h-40 bg-gray-950 border-b border-gray-800 shrink-0">
+        <div className="flex items-center gap-6">
+          {/* Logo wordmark — doubled in size */}
           <img
             src="/logo.png"
             alt="DeeEzz Market Dashboard"
-            className="h-14 w-auto object-contain"
+            className="h-28 w-auto object-contain"
           />
           {/* Divider + subtitle */}
-          <div className="border-l border-gray-700 pl-5">
-            <p className="text-gray-300 text-sm font-semibold tracking-wide">Market Dashboard</p>
-            <p className="text-gray-600 text-xs mt-0.5">
+          <div className="border-l border-gray-700 pl-6">
+            <p className="text-gray-300 text-base font-semibold tracking-wide">Market Dashboard</p>
+            <p className="text-gray-600 text-sm mt-1">
               {today}
               {lastUpdate && (
                 <span className="ml-2 inline-flex items-center gap-1">
-                  <RefreshCw size={9} className={loading ? 'animate-spin text-indigo-400' : 'text-gray-600'} />
+                  <RefreshCw size={10} className={loading ? 'animate-spin text-indigo-400' : 'text-gray-600'} />
                   <span className={loading ? 'text-indigo-400' : 'text-gray-600'}>
                     {lastUpdate.toLocaleTimeString()}
                   </span>
