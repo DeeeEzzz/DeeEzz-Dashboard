@@ -1,4 +1,4 @@
-import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
+import { TrendingDown, TrendingUp, RefreshCw } from 'lucide-react';
 import AssetSection from './components/AssetSection';
 import NewsFeed from './components/NewsFeed';
 import { useMarketData } from './hooks/useMarketData';
@@ -29,17 +29,17 @@ export default function App() {
 
       {/* ── Header ─────────────────────────────────────────────────────────── */}
       <header className="flex items-center px-6 h-20 bg-gray-950 border-b border-gray-800 shrink-0">
-        <div className="flex items-center gap-4">
-          {/* Logo — twice original size */}
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0">
-            <TrendingUp size={26} className="text-white" />
-          </div>
-          <div>
-            {/* Title — twice original size */}
-            <h1 className="text-white font-bold text-3xl leading-tight tracking-tight">
-              DeeEzz Market Dashboard
-            </h1>
-            <p className="text-gray-500 text-xs mt-0.5">
+        <div className="flex items-center gap-5">
+          {/* Logo wordmark */}
+          <img
+            src="/logo.png"
+            alt="DeeEzz Market Dashboard"
+            className="h-14 w-auto object-contain"
+          />
+          {/* Divider + subtitle */}
+          <div className="border-l border-gray-700 pl-5">
+            <p className="text-gray-300 text-sm font-semibold tracking-wide">Market Dashboard</p>
+            <p className="text-gray-600 text-xs mt-0.5">
               {today}
               {lastUpdate && (
                 <span className="ml-2 inline-flex items-center gap-1">
